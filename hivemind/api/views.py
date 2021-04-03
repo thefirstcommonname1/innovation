@@ -19,14 +19,11 @@ def makepost(request):
     author = request.POST.get('author') # need a get route that renders the form with 'author' as name
     title = request.POST.get('title') # same shit
     body = request.POST.get('body') # same shit
-
-    taglimit = 2
-    taglist = []
-    for i in range(1, taglimit+1):
-        print(i)
-        tag = input(' Tag: ')
-        taglist.append(tag)
-
+    tag_first = request.POST.get('tag1')
+    tag_second = request.POST.get('tag2')
+    
+    taglist = [tag_first, tag_second]
+    
     permlink = ''.join(random.choices(string.digits, k=10))
 
     client = Hive('http://127.0.0.1:8090')
@@ -48,4 +45,4 @@ def makepost(request):
 
     return(HttpResponse(str(broadcast_tx)))
   else:
-    return render(request, 'form_post.html')
+    return render(request, 'api/form_post.html')

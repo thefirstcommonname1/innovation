@@ -1,0 +1,15 @@
+<form action="/api/makepost" method='POST'>
+  {% csrf_token %}
+  <label for="author">Author: </label>
+  <input type="text" name="author" id="author">
+  <label for="author">Title: </label>
+  <input type="text" name="title" id="title">
+  <label for="author">Body: </label>
+  <input type="text" name="body" id="body">
+  <br/>
+  <input type="checkbox" id="tag1" name="tag1"checked value="trending">
+  <label for="tag1">trending</label>
+  <input type="checkbox" id="tag2" name="tag2" value="hot">
+  <label for="tag2">hot</label>
+  <input type="submit" value="Submit">
+</form>
