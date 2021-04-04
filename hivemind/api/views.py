@@ -1,4 +1,5 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from django.template import loader
 from django.http import HttpResponse
 import random
 import string
@@ -9,10 +10,21 @@ import beem
 from beem import Hive
 from beem.transactionbuilder import TransactionBuilder
 from beembase.operations import Comment
+from beem.account import Account
+from beem.discussions import Query, Discussions
+# defining private keys inside source code is not secure way but possible
+h = Hive(keys=['5JfPgUtjyCsPedXjBqJmjGR7X8T1G18sT9DUa3fxwcBRTsSoYt2', '5JCz4JT3Dnr51AbgZHbviwNcn9GAU8cJsENNdZffVMRZYe2HLWG'])
+a = Account('tippynerdo', blockchain_instance=h)
+
 # Create your views here.
 
 def index(request):
-  return HttpResponse("Return 'render()' with index.html instead when view is rdy")
+  q=Query(limit=100, tag="")
+  d=Discussions()
+  posts = d.get_discussions('trending', q, limit=100)
+  template = loader.get_template('api/index.html')
+  context = {'posts': posts}
+  return HttpResponse(template.render(context, request))
     
 def makepost(request):
   if request.method == 'POST':
@@ -21,14 +33,16 @@ def makepost(request):
     body = request.POST.get('body') # same shit
     tag_first = request.POST.get('tag1')
     tag_second = request.POST.get('tag2')
+    whatever = request.POST.get('privatekey')
     
     taglist = [tag_first, tag_second]
     
     permlink = ''.join(random.choices(string.digits, k=10))
 
-    client = Hive('http://127.0.0.1:8090')
+    client = Hive('https://api.hive.blog', keys=['5JfPgUtjyCsPedXjBqJmjGR7X8T1G18sT9DUa3fxwcBRTsSoYt2',
+    '5JCz4JT3Dnr51AbgZHbviwNcn9GAU8cJsENNdZffVMRZYe2HLWG'])
     tx = TransactionBuilder(blockchain_instance=client)
-    tx.apendOps(Comment(**{
+    tx.appendOps(Comment(**{
         "parent_author": '',
         "parent_permlink": taglist[0],
         "author": author,
@@ -38,11 +52,11 @@ def makepost(request):
       "json_metadata": json.dumps({"tags": taglist})
     }))
 
-    wif_posting_key = getpass.getpass('Posting key: ')
-    tx.appendWif(wif_posting_key)
+
+    tx.appendWif('5JfPgUtjyCsPedXjBqJmjGR7X8T1G18sT9DUa3fxwcBRTsSoYt2')
     signed_tx = tx.sign()
     broadcast_tx = tx.broadcast(trx_id=True)
-
-    return(HttpResponse(str(broadcast_tx)))
+    print(broadcast_tx)
+    return redirect('index')
   else:
     return render(request, 'api/form_post.html')

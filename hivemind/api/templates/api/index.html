@@ -1,0 +1,11 @@
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'api/main.css' %}">
+{% if posts %}
+    <ul>
+    {% for post in posts %}
+        <p class="post">{{ post }}</p>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No posts are available.</p>
+{% endif %}
